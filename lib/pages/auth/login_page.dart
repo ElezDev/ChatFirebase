@@ -5,21 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
-
-
-    final void Function()? onTap;
+  final void Function()? onTap;
   const LoginPage({super.key, this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
-
-  final emailController = TextEditingController();
-  final paswordController = TextEditingController();
+final emailController = TextEditingController();
+final paswordController = TextEditingController();
+bool _isPasswordVisible = false;
 
 class _LoginPageState extends State<LoginPage> {
-    void sigIn() async {
+  void sigIn() async {
     final authService = Provider.of<AuthService>(context, listen: false);
     try {
       await authService.signInWithEmailandPassword(
@@ -40,25 +38,17 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 1,
-              ),
-              const Icon(
-                Icons.comment,
-                size: 80,
-              ),
-              const SizedBox(
-                height: 1,
-              ),
-              const Text(
-                "Hola mundo",
+              const Image(
+                image: AssetImage('assets/images/logo.jpg'),
+                height: 250,
+                width: 300,
               ),
               MyTextField(
                 controller: emailController,
@@ -70,8 +60,21 @@ class _LoginPageState extends State<LoginPage> {
               ),
               MyTextField(
                 controller: paswordController,
-                obscureText: false,
+                obscureText: !_isPasswordVisible,
                 hintText: 'Password',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
               ),
               const SizedBox(
                 height: 20,
@@ -83,16 +86,16 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(
                 height: 20,
               ),
-               Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Not a memeber?'),
-                  SizedBox(
+                  const Text('No tienes cuenta'),
+                  const SizedBox(
                     height: 4,
                   ),
                   GestureDetector(
-                    onTap:widget.onTap,
-                    child: Text(
+                    onTap: widget.onTap,
+                    child: const Text(
                       '  Register',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),

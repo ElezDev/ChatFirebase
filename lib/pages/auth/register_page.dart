@@ -18,11 +18,12 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final paswordController = TextEditingController();
   final confirmpaswordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
   void sigUp() async {
     if (paswordController.text != confirmpaswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Password don ot match"),
         ),
       );
@@ -31,7 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final authService = Provider.of<AuthService>(context, listen: false);
     try {
-        await authService.signUpWithEmailandPassword(
+      await authService.signUpWithEmailandPassword(
         emailController.text,
         paswordController.text,
       );
@@ -49,7 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -59,36 +60,67 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(
                 height: 1,
               ),
-              const Icon(
-                Icons.comment,
-                size: 80,
+              const Image(
+                image: AssetImage('assets/images/logo.jpg'),
+                height: 250,
+                width: 300,
               ),
               const SizedBox(
                 height: 1,
               ),
               const Text(
                 "Crea una cuenta",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Color.fromARGB(187, 32, 204, 195)),
               ),
               MyTextField(
                 controller: emailController,
                 obscureText: false,
-                hintText: 'Email',
+                hintText: 'Correo',
               ),
               const SizedBox(
                 height: 10,
               ),
               MyTextField(
                 controller: paswordController,
-                obscureText: false,
-                hintText: 'Password',
+                obscureText: !_isPasswordVisible,
+                hintText: 'Contraseña',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
               ),
               const SizedBox(
                 height: 10,
               ),
               MyTextField(
                 controller: confirmpaswordController,
-                obscureText: false,
-                hintText: ' confirmPassword',
+                obscureText: !_isPasswordVisible,
+                hintText: 'Cofirmar contraseña',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
               ),
               const SizedBox(
                 height: 20,
@@ -96,7 +128,6 @@ class _RegisterPageState extends State<RegisterPage> {
               MyButton(
                 text: "Sing Up",
                 onTap: sigUp,
-              
               ),
               const SizedBox(
                 height: 20,
@@ -104,13 +135,13 @@ class _RegisterPageState extends State<RegisterPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Alredy a memeber?'),
-                  SizedBox(
+                  const Text('Ya tienes una cuenta?'),
+                  const SizedBox(
                     height: 4,
                   ),
                   GestureDetector(
                     onTap: widget.onTap,
-                    child: Text(
+                    child: const Text(
                       '  Login',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),

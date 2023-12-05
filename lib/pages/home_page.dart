@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  void singOut() {
+
+  void signOut() {
     final authService = Provider.of<AuthService>(context, listen: false);
     authService.singOut();
   }
@@ -24,10 +25,22 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: Text("Home"),
-        actions: [IconButton(onPressed: singOut, icon: Icon(Icons.logout))],
+        title: const Text("Chats"),
+        actions: [
+          IconButton(
+            onPressed: signOut,
+            icon: const Icon(Icons.exit_to_app),
+          ),
+        ],
       ),
       body: _buildUserList(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Agregar lógica para iniciar un nuevo chat
+        },
+        child: const Icon(Icons.message),
+        backgroundColor: Colors.green,
+      ),
     );
   }
 
@@ -36,42 +49,48 @@ class _HomePageState extends State<HomePage> {
       stream: FirebaseFirestore.instance.collection('users').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Text("Error");
+          return const Center(child: Text("Error"));
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading...");
+          return const Center(child: CircularProgressIndicator());
         }
         return ListView(
+          padding: const EdgeInsets.all(16.0),
           children: snapshot.data!.docs
-              .map<Widget>(
-                (doc) => _buildUserListItem(doc),
-              )
+              .where((doc) => _auth.currentUser!.email != doc['email'])
+              .map<Widget>((doc) => _buildUserListItem(doc))
               .toList(),
         );
       },
     );
   }
 
-  Widget _buildUserListItem(DocumentSnapshot documen) {
-    Map<String, dynamic> data = documen.data()! as Map<String, dynamic>;
-    if (_auth.currentUser!.email != data['email']) {
-      return ListTile(
-        title: Text(data['email']),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatPage(
-                userEmail: data['email'],
-                userId: data['uid'],
-              ),
+  Widget _buildUserListItem(DocumentSnapshot document) {
+    Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+      leading: CircleAvatar(
+        // Puedes agregar la lógica para mostrar la imagen del perfil aquí
+        radius: 24.0,
+        child: Text(data['email'][0].toUpperCase()),
+      ),
+      title: Text(data['email']),
+      subtitle: Text(
+        // Puedes mostrar la última vez que se conectó el usuario o algún otro detalle.
+        "Última vez activo...",
+        style: TextStyle(color: Colors.grey),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(
+              userEmail: data['email'],
+              userId: data['uid'],
             ),
-          );
-        },
-      );
-    }
-    else{
-      return Container();
-    }
+          ),
+        );
+      },
+    );
   }
 }
